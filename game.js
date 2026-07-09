@@ -292,6 +292,7 @@ document.addEventListener('keydown', e => {
       tryRotate();
       break;
     case 'Space':
+    case 'Enter':
       e.preventDefault();
       hardDrop();
       break;
