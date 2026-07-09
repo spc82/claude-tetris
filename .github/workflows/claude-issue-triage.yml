@@ -1,0 +1,49 @@
+name: Claude Issue Triage
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Issue Triage
+        id: claude-triage
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: '--allowed-tools "Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh label list:*)"'
+          prompt: |
+            Analyze issue #${{ github.event.issue.number }} in this repository.
+
+            Repository: vanilla JS Tetris game (`index.html`, `style.css`, `game.js`).
+            Read CLAUDE.md for architecture context (board model, collision, rotation,
+            line clearing, scoring, game loop) before diagnosing.
+
+            Steps:
+            1. Read the issue title and body via `gh issue view ${{ github.event.issue.number }}`.
+            2. Read the relevant source files to understand the area the issue touches.
+            3. Assign appropriate labels from the repo's EXISTING label set only
+               (do not create new labels) using:
+               `gh issue edit ${{ github.event.issue.number }} --add-label "<label>"`
+               Run `gh label list` first if unsure which labels exist.
+            4. Post a diagnostic comment via
+               `gh issue comment ${{ github.event.issue.number }} --body "..."` containing:
+               - Likely root cause and the specific function/file involved
+                 (e.g. `collide()`, `tryRotate()`, `clearLines()`, `spawn()`).
+               - Estimated scope of the fix (small tweak vs broader change).
+               - If the issue is too vague to diagnose, say so explicitly and list
+                 what information is missing, instead of guessing.
+
+            Do not modify any source files. Do not open a PR. Only label and comment.
