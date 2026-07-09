@@ -46,5 +46,7 @@ jobs:
                - Estimated scope of the fix (small tweak vs broader change).
                - If the issue is too vague to diagnose, say so explicitly and list
                  what information is missing, instead of guessing.
+               Write this comment IN SPANISH (castellano). Code identifiers, file
+               names, and function names stay in their original form.
 
             Do not modify any source files. Do not open a PR. Only label and comment.
